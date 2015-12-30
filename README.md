@@ -13,7 +13,21 @@ dora plugin for weinre.
 
 ```bash
 $ npm i dora dora-plugin-weinre -SD
-$ ./node_modules/.bin/dora --plugins weinre
+$ ./node_modules/.bin/dora --plugins weinre?{httpPort: 8888}
+```
+
+## Param
+
+```javascript
+defaultOptions = {
+  httpPort: 8990,
+  boundHost: 'yourIP',
+  verbose: false,
+  debug: false,
+  readTimeout: 5,
+  deathTimeout: 15,
+  help: false,
+};
 ```
 
 ## Test
