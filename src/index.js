@@ -1,8 +1,8 @@
-import 'babel-polyfill';
 import { existsSync, readFileSync } from 'fs';
 import { parse } from 'url';
 import { join } from 'path';
-import assign from 'object-assign';
+
+const localIP = require('internal-ip')();
 
 /**
  * weinre code
@@ -23,9 +23,9 @@ let defaultOpts = {
 
 export default {
   'middleware.before'() {
-    const { log, localIP } = this;
+    const { log, query } = this;
     defaultOpts.boundHost = localIP;
-    defaultOpts = assign(defaultOpts, this.query);
+    defaultOpts = {...defaultOpts, ...query};
 
     run(defaultOpts);
     log.info(`weinre is started, servering at http://${defaultOpts.boundHost}:${defaultOpts.httpPort}`);
