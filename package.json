@@ -11,6 +11,7 @@
   "main": "./lib",
   "scripts": {
     "build": "rm -rf lib && babel src --out-dir lib",
+    "compile": "npm run build",
     "test": "babel-node $(npm bin)/babel-istanbul cover $(npm bin)/_mocha -- --no-timeouts",
     "lint": "eslint --ext .js src test",
     "coveralls": "cat ./coverage/lcov.info | coveralls"
