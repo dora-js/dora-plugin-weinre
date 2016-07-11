@@ -5,19 +5,16 @@ import request from 'supertest';
 const localIP = require('internal-ip')();
 const port = '12345';
 
-describe('index', function() {
-  this.timeout(50000);
+describe('index', () => {
   describe('livereload.js', () => {
-    
     const cwd = process.cwd();
     before(done => {
-      process.chdir(join(__dirname, './fixtures/normal'));   
+      process.chdir(join(__dirname, './fixtures/normal'));
       dora({
         port,
         plugins: ['../../../src/index?{httpPort:8888}'],
         cwd: join(__dirname, './fixtures/normal'),
-      });
-      setTimeout(done, 1000);
+      }, done);
     });
 
     after(() => {
@@ -25,14 +22,18 @@ describe('index', function() {
     });
 
     it('GET weinre /target/target-script-min.js#anonymous', done => {
-
       request(`http://${localIP}:8888`)
         .get('/target/target-script-min.js#anonymous')
         .expect(200)
-        .end(function(err, res){
+        .end((err, res) => {
           if (err) return done(err);
-          if (res.text.indexOf(`modjewel.require('weinre/target/Target').main()`) < 0) throw new Error("/target/target-script-min.js#anonymous is not correct"); 
-          done();
+          if (res.text.indexOf("modjewel.require('weinre/target/Target').main()") < 0) {
+            const e = new Error('/target/target-script-min.js#anonymous is not correct');
+
+            return done(e);
+          }
+
+          return done();
         });
     });
 
@@ -40,10 +41,15 @@ describe('index', function() {
       request(`http://localhost:${port}`)
         .get('/index.html')
         .expect(200)
-        .end(function(err, res){
+        .end((err, res) => {
           if (err) return done(err);
-          if (res.text.indexOf(`<script src='http://${localIP}:8888/target/target-script-min.js#anonymous'></script>`) < 0) throw new Error("/target/target-script-min.js#anonymous is not injected"); 
-          done();
+          if (res.text.indexOf(`<script src='http://${localIP}:8888/target/target-script-min.js#anonymous'></script>`) < 0) {
+            const e = new Error('/target/target-script-min.js#anonymous is not injected');
+
+            return done(e);
+          }
+
+          return done();
         });
     });
 
@@ -51,10 +57,15 @@ describe('index', function() {
       request(`http://localhost:${port}`)
         .get('/lackdoctype.html')
         .expect(200)
-        .end(function(err, res){
+        .end((err, res) => {
           if (err) return done(err);
-          if (res.text.indexOf(`<script src='http://${localIP}:8888/target/target-script-min.js#anonymous'></script>`) < 0) throw new Error("/target/target-script-min.js#anonymous is not injected"); 
-          done();
+          if (res.text.indexOf(`<script src='http://${localIP}:8888/target/target-script-min.js#anonymous'></script>`) < 0) {
+            const e = new Error('/target/target-script-min.js#anonymous is not injected');
+
+            return done(e);
+          }
+
+          return done();
         });
     });
 
@@ -62,14 +73,16 @@ describe('index', function() {
       request(`http://localhost:${port}`)
         .get('/index.js')
         .expect(200)
-        .end(function(err, res){
+        .end((err, res) => {
           if (err) return done(err);
-          if (res.text.indexOf('console.log(1);') < 0) throw new Error("other types of files should not be handled"); 
-          done();
+          if (res.text.indexOf('console.log(1);') < 0) {
+            const e = new Error('other types of files should not be handled');
+
+            return done(e);
+          }
+
+          return done();
         });
     });
   });
 });
-
-
-

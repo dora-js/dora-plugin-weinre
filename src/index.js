@@ -25,7 +25,7 @@ export default {
   'middleware.before'() {
     const { log, query } = this;
     defaultOpts.boundHost = localIP;
-    defaultOpts = {...defaultOpts, ...query};
+    defaultOpts = { ...defaultOpts, ...query };
 
     run(defaultOpts);
     log.info(`weinre is started, servering at http://${defaultOpts.boundHost}:${defaultOpts.httpPort}`);
@@ -34,7 +34,7 @@ export default {
   'middleware'() {
     const { cwd } = this;
 
-    return function* (next) {
+    return function* middleFunc(next) {
       const fileName = parse(this.url).pathname;
       const filePath = join(cwd, fileName);
       const isHTML = /\.html?$/.test(this.url.split('?')[0]);

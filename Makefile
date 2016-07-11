@@ -1,5 +1,7 @@
-
-# ref: https://github.com/npm/npm/issues/3059
 publish:
-	npm run build
+	npm run compile
 	npm publish
+
+publish-sync: publish
+	cnpm sync
+	tnpm sync
