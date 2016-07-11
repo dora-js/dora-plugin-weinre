@@ -2,6 +2,10 @@
 
 ---
 
+## 0.3.1
+
+- add npm run compile
+
 ## 0.3.0
 
 - enhance inject weinre https://github.com/dora-js/dora-plugin-weinre/pull/1
