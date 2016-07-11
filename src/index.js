@@ -2,6 +2,9 @@ import { existsSync, readFileSync } from 'fs';
 import { parse } from 'url';
 import { join } from 'path';
 
+import { getInjectWeinreContent } from './util';
+import InjectScript from './injectScript';
+
 const localIP = require('internal-ip')();
 
 /**
@@ -13,7 +16,7 @@ import { run } from 'weinre';
 
 let defaultOpts = {
   httpPort: 8990,
-  boundHost: 'localhost',
+  boundHost: localIP,
   verbose: false,
   debug: false,
   readTimeout: 5,
@@ -22,33 +25,30 @@ let defaultOpts = {
 };
 
 export default {
-  'middleware.before'() {
-    const { log, query } = this;
-    defaultOpts.boundHost = localIP;
-    defaultOpts = { ...defaultOpts, ...query };
+  name: 'dora-plugin-weinre',
 
+  'middleware.before'() {
+    const { log } = this;
     run(defaultOpts);
     log.info(`weinre is started, servering at http://${defaultOpts.boundHost}:${defaultOpts.httpPort}`);
   },
 
   'middleware'() {
-    const { cwd } = this;
+    const { cwd, get } = this;
 
+    const compiler = get('compiler');
+    if (!compiler) {
+      throw new Error('[error] must used together with dora-plugin-webpack');
+    }
     return function* middleFunc(next) {
-      const fileName = parse(this.url).pathname;
+      const pathName = parse(this.url).pathname;
+      const fileName = pathName === '/' ? 'index.html' : pathName;
       const filePath = join(cwd, fileName);
-      const isHTML = /\.html?$/.test(this.url.split('?')[0]);
+      const isHTML = /\.html?$/.test(fileName);
       if (isHTML && existsSync(filePath)) {
-        const injectScript = `<script src='http://${defaultOpts.boundHost}:${defaultOpts.httpPort}/target/target-script-min.js#anonymous'></script>`;
+        const injectContent = getInjectWeinreContent(defaultOpts.boundHost, defaultOpts.httpPort);
+        const injectScript = `<script>${injectContent}</script>`;
         let content = readFileSync(filePath, 'utf-8');
-        const docTypeReg = new RegExp('^\s*\<\!DOCTYPE\s*.+\>.*$', 'im');
-        const docType = content.match(docTypeReg);
-        if (docType) {
-          content = content.replace(docTypeReg, docType[0] + injectScript);
-          this.body = content;
-
-          return;
-        }
         content = injectScript + content;
         this.body = content;
 
@@ -56,5 +56,18 @@ export default {
       }
       yield next;
     };
+  },
+
+  'webpack.updateConfig.finally'(webpackConfig) {
+    const { query } = this;
+
+    defaultOpts = { ...defaultOpts, ...query };
+
+    webpackConfig.plugins.push(new InjectScript({
+      boundHost: defaultOpts.boundHost,
+      httpPort: defaultOpts.httpPort,
+    }));
+
+    return webpackConfig;
   },
 };
