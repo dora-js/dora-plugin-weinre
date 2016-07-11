@@ -18,10 +18,11 @@
   "dependencies": {
     "coffee-script": "^1.10.0",
     "internal-ip": "^1.2.0",
+    "webpack-core": "^0.6.8",
     "weinre": "^2.0.0-pre-I0Z7U9OV"
   },
   "devDependencies": {
-   "atool-build": "0.7.x",
+    "atool-build": "0.7.x",
     "babel-cli": "^6.10.1",
     "babel-core": "^6.10.4",
     "babel-eslint": "^6.1.0",
